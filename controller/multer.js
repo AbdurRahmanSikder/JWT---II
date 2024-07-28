@@ -7,20 +7,20 @@ const fs = require('fs');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
+    
         const location = path.join(__dirname, '..', 'uploads', 'images');
 
-        // Check if the directory exists, and create it if it doesn't
         if (!fs.existsSync(location)) {
             try {
                 fs.mkdirSync(location, { recursive: true });
                 console.log('Directory created:', location);
             } catch (err) {
                 console.error('Error creating uploads directory:', err);
-                return cb(err); // Pass error to the callback
+                return cb(err); 
             }
         }
 
-        cb(null, location); // Use the absolute path
+        cb(null, location); 
     },
     filename: (req, file, cb) => {
         const name = Date.now() + '-' + file.originalname;
@@ -28,6 +28,17 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage });
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null, true);
+    } else {
+        cb(new Error('Invalid file type'), false);
+    }
+}
+
+
+
+
+const upload = multer({ storage , fileFilter: fileFilter});
 
 module.exports = upload;
